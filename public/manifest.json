@@ -1,13 +1,14 @@
 
 {
-  "name": "Print Poka",
+  "name": "Print Poka - Your Fashion Destination",
   "short_name": "Print Poka",
-  "description": "Your favorite online shopping app",
+  "description": "Discover the latest fashion trends and shop your favorite clothes online with Print Poka",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
       "src": "/placeholder.svg",
@@ -22,6 +23,30 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "lifestyle"],
-  "lang": "en"
+  "categories": ["shopping", "lifestyle", "fashion"],
+  "lang": "en",
+  "shortcuts": [
+    {
+      "name": "Browse Products",
+      "short_name": "Browse",
+      "description": "Browse our latest fashion collection",
+      "url": "/?utm_source=homescreen",
+      "icons": [{ "src": "/placeholder.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "View Cart",
+      "short_name": "Cart",
+      "description": "View your shopping cart",
+      "url": "/cart?utm_source=homescreen",
+      "icons": [{ "src": "/placeholder.svg", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholder.svg",
+      "type": "image/svg+xml",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    }
+  ]
 }
