@@ -734,12 +734,31 @@ const Index = () => {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"home" | "search" | "contact">("home");
+  const [currentPage, setCurrentPage] = useState<"home" | "search" | "contact" | "cart">("home");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  const navigationHandlers = useMemo(() => ({
+    onHomeClick: () => {
+      setCurrentPage("home");
+      setIsCartOpen(false);
+    },
+    onSearchClick: () => {
+      setCurrentPage("search");
+      setIsCartOpen(false);
+    },
+    onCartClick: () => {
+      setCurrentPage("cart");
+      setIsCartOpen(true);
+    },
+    onContactClick: () => {
+      setCurrentPage("contact");
+      setIsCartOpen(false);
+    }
+  }), []);
 
   const addToCart = (product: Product, size: string = "Default") => {
     const existingItem = cartItems.find(item => item.product.id === product.id && item.size === size);
@@ -773,13 +792,40 @@ const Index = () => {
 
   const wishlistProducts = mockProducts.filter(product => wishlist.includes(product.id));
 
+  if (currentPage === "cart" || isCartOpen) {
+    return (
+      <CartPage
+        items={cartItems}
+        onUpdateQuantity={(productId, size, quantity) => {
+          if (quantity === 0) {
+            setCartItems(cartItems.filter(item => !(item.product.id === productId && item.size === size)));
+          } else {
+            setCartItems(cartItems.map(item => 
+              item.product.id === productId && item.size === size
+                ? { ...item, quantity }
+                : item
+            ));
+          }
+        }}
+        onClose={() => {
+          setIsCartOpen(false);
+          setCurrentPage("home");
+        }}
+        onHomeClick={navigationHandlers.onHomeClick}
+        onSearchClick={navigationHandlers.onSearchClick}
+        onContactClick={navigationHandlers.onContactClick}
+        cartCount={cartItemsCount}
+      />
+    );
+  }
+
   if (currentPage === "contact") {
     return (
       <Contact 
         onBack={() => setCurrentPage("home")}
-        onHomeClick={() => setCurrentPage("home")}
-        onSearchClick={() => setCurrentPage("search")}
-        onCartClick={() => setIsCartOpen(true)}
+        onHomeClick={navigationHandlers.onHomeClick}
+        onSearchClick={navigationHandlers.onSearchClick}
+        onCartClick={navigationHandlers.onCartClick}
         cartCount={cartItemsCount}
       />
     );
@@ -793,9 +839,9 @@ const Index = () => {
         onBack={() => setCurrentPage("home")}
         onProductClick={setSelectedProduct}
         onToggleWishlist={toggleWishlist}
-        onHomeClick={() => setCurrentPage("home")}
-        onCartClick={() => setIsCartOpen(true)}
-        onContactClick={() => setCurrentPage("contact")}
+        onHomeClick={navigationHandlers.onHomeClick}
+        onCartClick={navigationHandlers.onCartClick}
+        onContactClick={navigationHandlers.onContactClick}
         cartCount={cartItemsCount}
       />
     );
@@ -933,10 +979,10 @@ const Index = () => {
       {/* Bottom Navigation */}
       <BottomNav 
         cartCount={cartItemsCount}
-        onHomeClick={() => setCurrentPage("home")}
-        onSearchClick={() => setCurrentPage("search")}
-        onCartClick={() => setIsCartOpen(true)}
-        onContactClick={() => setCurrentPage("contact")}
+        onHomeClick={navigationHandlers.onHomeClick}
+        onSearchClick={navigationHandlers.onSearchClick}
+        onCartClick={navigationHandlers.onCartClick}
+        onContactClick={navigationHandlers.onContactClick}
         activeTab={currentPage}
       />
 
@@ -950,24 +996,6 @@ const Index = () => {
           onToggleWishlist={() => toggleWishlist(selectedProduct.id)}
         />
       )}
-
-      {/* Cart */}
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={(productId, size, quantity) => {
-          if (quantity === 0) {
-            setCartItems(cartItems.filter(item => !(item.product.id === productId && item.size === size)));
-          } else {
-            setCartItems(cartItems.map(item => 
-              item.product.id === productId && item.size === size
-                ? { ...item, quantity }
-                : item
-            ));
-          }
-        }}
-      />
     </div>
   );
 };
