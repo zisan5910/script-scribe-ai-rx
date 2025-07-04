@@ -2,14 +2,14 @@ import { useState, useMemo } from "react";
 import { Heart, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductGrid from "@/components/ProductGrid";
-import ProductModal from "@/components/ProductModal";
-import Cart from "@/components/Cart";
+import ProductDetailPage from "@/components/ProductDetailPage";
 import WishlistPage from "@/components/WishlistPage";
 import CartPage from "@/components/CartPage";
 import BottomNav from "@/components/BottomNav";
 import Contact from "@/pages/Contact";
 import Search from "@/pages/Search";
 import { Product } from "@/types/Product";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const mockProducts: Product[] = [
   // Electronics - Mobile Phones
@@ -731,11 +731,10 @@ const categories = [
 
 const Index = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [cartItems, setCartItems] = useState<Array<{ product: Product; size: string; quantity: number }>>([]);
-  const [wishlist, setWishlist] = useState<number[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useLocalStorage<Array<{ product: Product; size: string; quantity: number }>>('cart-items', []);
+  const [wishlist, setWishlist] = useLocalStorage<number[]>('wishlist', []);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<"home" | "search" | "contact" | "cart">("home");
+  const [currentPage, setCurrentPage] = useState<"home" | "search" | "contact" | "cart" | "product-detail">("home");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -745,19 +744,18 @@ const Index = () => {
   const navigationHandlers = useMemo(() => ({
     onHomeClick: () => {
       setCurrentPage("home");
-      setIsCartOpen(false);
+      setSelectedProduct(null);
     },
     onSearchClick: () => {
       setCurrentPage("search");
-      setIsCartOpen(false);
+      setSelectedProduct(null);
     },
     onCartClick: () => {
       setCurrentPage("cart");
-      setIsCartOpen(true);
     },
     onContactClick: () => {
       setCurrentPage("contact");
-      setIsCartOpen(false);
+      setSelectedProduct(null);
     }
   }), []);
 
@@ -774,6 +772,7 @@ const Index = () => {
       setCartItems([...cartItems, { product, size, quantity: 1 }]);
     }
     setSelectedProduct(null);
+    setCurrentPage("home");
   };
 
   const toggleWishlist = (productId: number) => {
@@ -782,6 +781,11 @@ const Index = () => {
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
+  };
+
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setCurrentPage("product-detail");
   };
 
   const filteredProducts = useMemo(() => {
@@ -793,7 +797,26 @@ const Index = () => {
 
   const wishlistProducts = mockProducts.filter(product => wishlist.includes(product.id));
 
-  if (currentPage === "cart" || isCartOpen) {
+  if (currentPage === "product-detail" && selectedProduct) {
+    return (
+      <ProductDetailPage
+        product={selectedProduct}
+        allProducts={mockProducts}
+        wishlist={wishlist}
+        onBack={() => setCurrentPage("home")}
+        onAddToCart={addToCart}
+        onToggleWishlist={toggleWishlist}
+        onProductClick={handleProductClick}
+        onHomeClick={navigationHandlers.onHomeClick}
+        onSearchClick={navigationHandlers.onSearchClick}
+        onCartClick={navigationHandlers.onCartClick}
+        onContactClick={navigationHandlers.onContactClick}
+        cartCount={cartItemsCount}
+      />
+    );
+  }
+
+  if (currentPage === "cart") {
     return (
       <CartPage
         items={cartItems}
@@ -809,7 +832,6 @@ const Index = () => {
           }
         }}
         onClose={() => {
-          setIsCartOpen(false);
           setCurrentPage("home");
         }}
         onHomeClick={navigationHandlers.onHomeClick}
@@ -838,7 +860,7 @@ const Index = () => {
         products={mockProducts}
         wishlist={wishlist}
         onBack={() => setCurrentPage("home")}
-        onProductClick={setSelectedProduct}
+        onProductClick={handleProductClick}
         onToggleWishlist={toggleWishlist}
         onHomeClick={navigationHandlers.onHomeClick}
         onCartClick={navigationHandlers.onCartClick}
@@ -853,7 +875,7 @@ const Index = () => {
       <WishlistPage
         products={wishlistProducts}
         wishlist={wishlist}
-        onProductClick={setSelectedProduct}
+        onProductClick={handleProductClick}
         onToggleWishlist={toggleWishlist}
         onBack={() => setIsWishlistOpen(false)}
       />
@@ -971,7 +993,7 @@ const Index = () => {
           <ProductGrid 
             products={filteredProducts}
             wishlist={wishlist}
-            onProductClick={setSelectedProduct}
+            onProductClick={handleProductClick}
             onToggleWishlist={toggleWishlist}
           />
         )}
@@ -986,17 +1008,6 @@ const Index = () => {
         onContactClick={navigationHandlers.onContactClick}
         activeTab={currentPage}
       />
-
-      {/* Product Modal */}
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          isInWishlist={wishlist.includes(selectedProduct.id)}
-          onClose={() => setSelectedProduct(null)}
-          onAddToCart={addToCart}
-          onToggleWishlist={() => toggleWishlist(selectedProduct.id)}
-        />
-      )}
     </div>
   );
 };

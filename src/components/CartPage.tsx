@@ -1,5 +1,5 @@
 
-import { X, Plus, Minus, ShoppingBag, ArrowRight, Trash2 } from "lucide-react";
+import { X, Plus, Minus, ShoppingBag, ArrowRight, Trash2, Search, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/Product";
 import BottomNav from "@/components/BottomNav";
@@ -35,16 +35,16 @@ const CartPage = ({
 
   const handleCheckout = () => {
     const orderSummary = items.map(item => 
-      `${item.product.name} (Size: ${item.size}, Qty: ${item.quantity}) - $${(item.product.price * item.quantity).toFixed(2)}`
+      `${item.product.name} (Size: ${item.size}, Qty: ${item.quantity}) - ৳${(item.product.price * item.quantity).toFixed(2)}`
     ).join('\n');
     
     const orderDetails = `
 Order Summary:
 ${orderSummary}
 
-Subtotal: $${total.toFixed(2)}
-Shipping: ${shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
-Total: $${finalTotal.toFixed(2)}
+Subtotal: ৳${total.toFixed(2)}
+Shipping: ${shipping === 0 ? 'Free' : `৳${shipping.toFixed(2)}`}
+Total: ৳${finalTotal.toFixed(2)}
     `.trim();
 
     const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSf_EXAMPLE_FORM_ID/viewform";
@@ -59,9 +59,17 @@ Total: $${finalTotal.toFixed(2)}
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="flex items-center justify-between p-4">
           <h3 className="font-light tracking-wide">Cart ({items.length})</h3>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={onSearchClick}>
+              <Search className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onContactClick}>
+              <MessageCircle className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -85,7 +93,7 @@ Total: $${finalTotal.toFixed(2)}
             {total < 200 && (
               <div className="bg-gray-50 p-3 text-center text-sm">
                 <span className="text-gray-600">
-                  Add ${(200 - total).toFixed(2)} more for free shipping
+                  Add ৳{(200 - total).toFixed(2)} more for free shipping
                 </span>
                 <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
                   <div 
@@ -111,7 +119,7 @@ Total: $${finalTotal.toFixed(2)}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-light text-sm line-clamp-2 mb-1">{item.product.name}</h4>
                     <p className="text-xs text-gray-500 mb-1">Size: {item.size}</p>
-                    <p className="font-medium text-sm">${item.product.price}</p>
+                    <p className="font-medium text-sm">৳{item.product.price}</p>
                     
                     <div className="flex items-center gap-3 mt-2">
                       <div className="flex items-center gap-2">
@@ -146,7 +154,7 @@ Total: $${finalTotal.toFixed(2)}
                   </div>
                   
                   <div className="text-right">
-                    <p className="font-medium text-sm">${(item.product.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-medium text-sm">৳{(item.product.price * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
               ))}
@@ -157,15 +165,15 @@ Total: $${finalTotal.toFixed(2)}
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>৳{total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                  <span>{shipping === 0 ? "Free" : `৳${shipping.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between font-medium text-base pt-2 border-t">
                   <span>Total</span>
-                  <span>${finalTotal.toFixed(2)}</span>
+                  <span>৳{finalTotal.toFixed(2)}</span>
                 </div>
               </div>
               
