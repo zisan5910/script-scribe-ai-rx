@@ -10,6 +10,7 @@ import Contact from "@/pages/Contact";
 import Search from "@/pages/Search";
 import { Product } from "@/types/Product";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import PWAInstallPopup from "@/components/PWAInstallPopup";
 
 const mockProducts: Product[] = [
   // Electronics - Mobile Phones
@@ -884,6 +885,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {/* PWA Install Popup */}
+      <PWAInstallPopup />
+      
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="flex items-center justify-between px-4 py-3">
