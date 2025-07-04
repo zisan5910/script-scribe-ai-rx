@@ -5,6 +5,7 @@ import ProductGrid from "@/components/ProductGrid";
 import ProductModal from "@/components/ProductModal";
 import Cart from "@/components/Cart";
 import WishlistPage from "@/components/WishlistPage";
+import CartPage from "@/components/CartPage";
 import BottomNav from "@/components/BottomNav";
 import Contact from "@/pages/Contact";
 import Search from "@/pages/Search";
