@@ -9,6 +9,13 @@ interface OfflineAction {
   timestamp: string;
 }
 
+// Extend ServiceWorkerRegistration interface for Background Sync
+interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
+  sync?: {
+    register(tag: string): Promise<void>;
+  };
+}
+
 export const useEnhancedOffline = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingActions, setPendingActions] = useState<OfflineAction[]>([]);
@@ -93,10 +100,21 @@ export const useEnhancedOffline = () => {
       await clearData();
       setPendingActions([]);
       
-      // Register background sync
-      if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-        const registration = await navigator.serviceWorker.ready;
-        await registration.sync.register('offline-sync');
+      // Register background sync if available
+      try {
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.ready;
+          const syncRegistration = registration as ServiceWorkerRegistrationWithSync;
+          
+          if (syncRegistration.sync) {
+            await syncRegistration.sync.register('offline-sync');
+            console.log('Background sync registered');
+          } else {
+            console.log('Background sync not supported');
+          }
+        }
+      } catch (syncError) {
+        console.log('Background sync registration failed:', syncError);
       }
       
     } catch (error) {
