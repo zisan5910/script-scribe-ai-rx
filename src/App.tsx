@@ -23,11 +23,37 @@ interface CartItem {
   quantity: number;
 }
 
+// Mock products data for the search functionality
+const mockProducts: Product[] = [
+  {
+    id: 1,
+    name: "Sample Product 1",
+    price: 29.99,
+    image: "/placeholder.svg",
+    category: "Electronics",
+    subcategory: "Gadgets",
+    description: "A sample product for demonstration",
+    rating: 4.5
+  },
+  {
+    id: 2,
+    name: "Sample Product 2",
+    price: 49.99,
+    image: "/placeholder.svg",
+    category: "Fashion",
+    subcategory: "Clothing",
+    description: "Another sample product",
+    rating: 4.0
+  }
+];
+
 const App = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCartPage, setShowCartPage] = useState(false);
+  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const addToCart = useCallback((product: Product, size: string) => {
     setCartItems(prev => {
@@ -73,6 +99,18 @@ const App = () => {
     setActiveTab("home");
   }, []);
 
+  const handleToggleWishlist = useCallback((productId: number) => {
+    setWishlist(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  }, []);
+
+  const handleProductClick = useCallback((product: Product) => {
+    setSelectedProduct(product);
+  }, []);
+
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   if (showCartPage) {
@@ -114,8 +152,34 @@ const App = () => {
           <div className="min-h-screen">
             <Routes>
               <Route path="/" element={<Index addToCart={addToCart} />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/contact" element={<Contact />} />
+              <Route 
+                path="/search" 
+                element={
+                  <Search 
+                    products={mockProducts}
+                    wishlist={wishlist}
+                    onBack={() => handleNavigation("home")}
+                    onProductClick={handleProductClick}
+                    onToggleWishlist={handleToggleWishlist}
+                    onHomeClick={() => handleNavigation("home")}
+                    onCartClick={handleCartClick}
+                    onContactClick={() => handleNavigation("contact")}
+                    cartCount={cartCount}
+                  />
+                } 
+              />
+              <Route 
+                path="/contact" 
+                element={
+                  <Contact 
+                    onBack={() => handleNavigation("home")}
+                    onHomeClick={() => handleNavigation("home")}
+                    onSearchClick={() => handleNavigation("search")}
+                    onCartClick={handleCartClick}
+                    cartCount={cartCount}
+                  />
+                } 
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
             
